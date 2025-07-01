@@ -1,0 +1,56 @@
+{
+  "datasets": {
+    "mnist": {
+      "description": "MNIST handwritten digits dataset",
+      "classes": 10,
+      "input_shape": [
+        1,
+        28,
+        28
+      ],
+      "samples": {
+        "train": 60000,
+        "test": 10000
+      },
+      "auto_download": true
+    },
+    "cifar10": {
+      "description": "CIFAR-10 object recognition dataset",
+      "classes": 10,
+      "input_shape": [
+        3,
+        32,
+        32
+      ],
+      "samples": {
+        "train": 50000,
+        "test": 10000
+      },
+      "auto_download": true
+    },
+    "femnist": {
+      "description": "Federated EMNIST character recognition",
+      "classes": 26,
+      "input_shape": [
+        1,
+        28,
+        28
+      ],
+      "samples": {
+        "train": "variable",
+        "test": "variable"
+      },
+      "auto_download": true,
+      "note": "EMNIST letters split used as proxy for FEMNIST"
+    }
+  },
+  "data_distributions": {
+    "iid": "Independent and identically distributed - balanced across clients",
+    "non_iid": "Non-IID using Dirichlet distribution with different beta values"
+  },
+  "heterogeneity_levels": {
+    "beta_0.1": "High heterogeneity - very skewed data distribution",
+    "beta_0.5": "Medium heterogeneity - moderately skewed distribution",
+    "beta_1.0": "Low heterogeneity - relatively balanced distribution"
+  }
+}

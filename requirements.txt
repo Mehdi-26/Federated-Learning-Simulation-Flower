@@ -1,0 +1,38 @@
+# Core Deep Learning and Federated Learning
+torch>=2.0.0
+torchvision>=0.15.0
+
+# Data Processing and Analysis
+numpy>=1.21.0
+pandas>=2.0.0
+scipy>=1.9.0
+scikit-learn>=1.2.0
+
+# Visualization and Plotting
+matplotlib>=3.6.0
+seaborn>=0.12.0
+plotly>=5.15.0
+
+# Configuration and File Handling
+PyYAML>=6.0
+pathlib2>=2.3.0
+
+# Statistical Analysis
+statsmodels>=0.14.0
+
+# Progress Bars and Logging
+tqdm>=4.64.0
+
+# Image Processing (if needed for CIFAR datasets)
+Pillow>=9.0.0
+
+# Optional: For enhanced statistical analysis
+ pingouin>=0.5.0  # Advanced statistical tests
+ scipy>=1.9.0     # Already included above
+
+# Optional: For memory optimization
+ psutil>=5.9.0    # Memory monitoring
+
+# Development tools (optional)
+ jupyter>=1.0.0   # If you want to run in Jupyter
+ ipython>=8.0.0   # Enhanced Python shell

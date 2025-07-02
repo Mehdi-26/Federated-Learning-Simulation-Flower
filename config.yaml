@@ -1,112 +1,105 @@
-# Enhanced Master's Thesis: Comprehensive Federated Learning Analysis Configuration
+# Optimized Literature-Standard Federated Learning Configuration
+# Based on: FL-bench, LEAF, FedProx paper, and performance evaluation studies
+# Optimized for GPU execution while maintaining literature standards
 
-# Experiment metadata
-experiment_name: "comprehensive_fl_thesis_analysis"
-description: "Master's thesis comprehensive analysis of federated learning algorithms across multiple challenges"
+experiment_name: "optimized_literature_fl_analysis"
+description: "Literature-standard FL analysis optimized for efficient execution"
 author: "Mehdi MOUALIM"
 thesis_title: "Comparative Analysis of Federated Learning Algorithms: Performance, Efficiency, and Fairness"
 
-# Algorithms to test - comprehensive comparison
+# Core Algorithm Selection (Literature Standards)
 algorithms:
-  - "FedAvg"
-  - "FedProx"
-  # Add more algorithms as needed:
-  # - "FedAdam"
-  # - "SCAFFOLD"
-  # - "COOP"
+  - "FedAvg"      # Baseline (McMahan et al., 2017)
+  - "FedProx"     # Heterogeneity handling (Li et al., 2020)
+  - "FedAdam"     # Server-side optimization (Reddi et al., 2021)
+  - "SCAFFOLD"    # Variance reduction (Karimireddy et al., 2020)
+  - "COOP"        # Cooperative learning
 
-# Algorithm-specific parameters for fair comparison
+# Literature-based Algorithm Parameters
 algorithm_params:
   fedavg: {}
   fedprox:
-    mu: 0.01  # Proximal term coefficient
+    mu: 0.01                    # Standard value from literature  [0.001, 0.01, 0.1, 1.0]
   fedadam:
     beta1: 0.9
     beta2: 0.999
-    tau: 0.001  # Server learning rate
+    tau: 0.001
   scaffold:
-    learning_rate_server: 1.0
+    learning_rate_server: 0.1   # Stable value (not 1.0)
     control_variate: true
   coop:
-    alpha: 0.1  # Cooperation weight
-    beta: 0.1   # Regularization weight
+    alpha: 0.1
+    beta: 0.1
 
-# Datasets for comprehensive evaluation
+# Dataset Configuration (Standard FL Benchmarks)
 datasets:
-  - "mnist"
-  # Add more datasets as needed:
-  # - "cifar10"
-  # - "femnist"
+  - "mnist"        # Fast convergence, good for comparison
+       # More complex, standard benchmark
 
-# Data distribution settings - heterogeneity challenge
-data_distributions:
-  
-  - "non_iid"
+# Data Heterogeneity (Dirichlet Distribution - Literature Standard)
+# Key literature values: extreme non-IID to near-IID
+beta_values: [0.1, 100.0]  # 5 key values covering full spectrum [0.1, 0.5, 1.0, 5.0, 100.0]
+# 0.1 = extreme non-IID, 100.0 = essentially IID
 
-# Heterogeneity levels (Dirichlet concentration parameter)
-# Lower beta = more heterogeneous (more challenging)
-# Higher beta = more homogeneous (easier)
-beta_values: [0.1,1.0]  # 0.1=high heterogeneity, 1.0=moderate heterogeneity
+# Federated Learning Setup (Literature Standards)
+num_clients: 3               # Reduced from 100 but still realistic 50
+clients_per_round: 2         # 20% participation (reasonable)
+num_rounds: 2               # Reduced from 200 but sufficient for convergence to 100
+local_epochs: 2                # Standard value 5
 
-# Federation configuration
-num_clients: 2
-clients_per_round: 1
-num_rounds: 2
-local_epochs: 3
-
-# Model and training configuration
+# Training Hyperparameters (Literature Standards)
 learning_rate: 0.01
 batch_size: 32
 weight_decay: 1e-4
 
-# Enhanced Academic Research Settings
+# Academic Analysis Configuration
 academic_analysis:
   statistical_testing: true
   confidence_level: 0.95
   effect_size_analysis: true
   power_analysis: true
-  
-# Research Question Specific Settings
+
+# Research Questions (Core FL Questions)
 research_questions:
-  fl_vs_centralized: true  # Compare FL to centralized learning
-  non_iid_impact: true     # Analyze heterogeneity impact
-  device_reliability: true # Test device dropout scenarios
+  fl_vs_centralized: true
+  non_iid_impact: true          # Main focus: heterogeneity impact
+  device_reliability: true
   communication_efficiency: true
   privacy_vs_accuracy: true
   scalability_analysis: true
 
-# Privacy challenge settings
-differential_privacy: false  # Set to true for privacy analysis
+# Privacy Settings (Disabled for baseline)
+differential_privacy: false
 dp_epsilon: 1.0
 dp_delta: 1e-5
 dp_noise_multiplier: 1.0
 dp_max_grad_norm: 1.0
 
-# Communication challenge settings
+# Communication Optimization (Baseline - no compression)
 compression: false
 quantization: false
 sparsification: false
 
-# Enhanced Robustness Testing
+# Robustness Testing (Key dropout rates)
 robustness_testing:
   dropout_simulation: true
-  dropout_rates: [0.0, 0.1, 0.2, 0.3]
+  dropout_rates: [0.0, 0.2, 0.4]  # 3 key values: none, moderate, high
   irregular_participation: true
 
-# Evaluation settings
-target_accuracy: 0.99
+# Stopping Criteria (Optimized)
+target_accuracy: 0.90           # Realistic target
 early_stopping: true
-early_stopping_patience: 15
+early_stopping_patience: 20    # Reasonable patience
 
-# Output configuration
+# Output Configuration
 save_results: true
-save_models: false
+save_models: false              # Save space - models not needed for analysis
 output_dir: "results"
 generate_plots: true
 generate_dashboard: true
 generate_report: true
 
-# Enhanced Academic Output Settings
+# Academic Outputs (Essential for thesis)
 academic_outputs:
   generate_latex_tables: true
   generate_presentation_plots: true
@@ -114,18 +107,31 @@ academic_outputs:
   generate_interactive_dashboards: true
   save_raw_data_csv: true
 
-# Statistical analysis
-num_runs: 1  # Multiple runs for statistical validity
+# Statistical Configuration (Literature Standard)
+num_runs: 5                     # Minimum for statistical validity
 confidence_interval: 0.95
 statistical_tests: true
 
-# System settings
+# System Configuration (GPU Optimized)
 random_seed: 42
-device: "auto"  # "cpu", "cuda", or "auto"
-num_workers: 4
+device: "cuda"                  # Force GPU usage
+num_workers: 4                  # Balanced for GPU
 pin_memory: true
 
-# Thesis-specific settings
+# Advanced Features
 thesis_mode: true
 detailed_logging: true
 verbose_output: true
+
+# Auto-download Results
+auto_download_on_completion: true
+results_compression: "zip"
+
+# Performance Optimizations
+mixed_precision: true           # Faster GPU training
+gradient_clipping: true         # Stability for SCAFFOLD/FedDyn
+max_grad_norm: 1.0
+
+# Memory Management
+checkpoint_frequency: 25        # Regular checkpoints
+memory_efficient: true

@@ -484,7 +484,8 @@ class EnhancedFLSimulation:
             metrics['test_accuracy'].append(test_acc)
             metrics['test_loss'].append(test_loss)
             metrics['train_loss'].append(test_loss * (1 + 0.1 * np.random.random()))  # Slightly higher train loss
-            metrics['communication_cost'].append(1000000 * (round_num + 1))  # Simulate communication cost
+            comm_cost = self.calculate_communication_cost(global_model, algorithm, round_num + 1, len(client_loaders))
+            metrics['communication_cost'].append(comm_cost)
             metrics['model_drift'].append(0.1 * round_num if round_num > 0 else 0.0)
             metrics['client_fairness'].append(1.0 - 0.05 * round_num)
             metrics['convergence_rate'].append(0.01 if round_num > 0 else 0.0)
@@ -601,7 +602,7 @@ class EnhancedFLSimulation:
                                          centralized_results, experiment_id)
         
         return all_results, academic_analysis, research_analysis
-
+    
     def _generate_academic_analysis(self, fl_results: Dict, centralized_results: Dict) -> Dict:
         """Generate comprehensive academic analysis"""
         analysis = {
@@ -1089,7 +1090,18 @@ class EnhancedFLSimulation:
         plt.tight_layout()
         plt.savefig(output_dir / 'algorithm_performance_dashboard.png', dpi=300, bbox_inches='tight')
         plt.close()
-
+    def calculate_communication_cost(self, model, algorithm, round_num, num_active_clients):
+    """
+    Standard FL communication cost calculation using literature formula:
+    Total Cost = rounds × (2 × |θ| × |Ws|) + |θ| × |Ws|
+    """
+        model_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
+        theta = model_params * 4  # |θ| in bytes
+        Ws = num_active_clients
+        round_cost = 2 * theta * Ws
+        cumulative_cost = round_num * round_cost
+    return cumulative_cost
+    
     def _create_training_dynamics_dashboard(self, fl_results: Dict, output_dir: Path):
         """Create training dynamics dashboard"""
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))

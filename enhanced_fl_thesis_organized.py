@@ -381,6 +381,12 @@ class EnhancedFLSimulation:
     if config.get('force_gpu', True):
         if torch.cuda.is_available():
             self.device = torch.device('cuda')
+            # ... rest of the GPU code
+    
+    # FORCE GPU SETTINGS - ADD THIS BLOCK HERE
+    if config.get('force_gpu', True):
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda')
             torch.cuda.set_device(0)  # Use first GPU
             
             # Apply GPU optimizations

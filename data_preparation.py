@@ -7,7 +7,6 @@ for federated learning experiments.
 
 Author: Mehdi MOUALIM
 """
-
 import os
 import json
 import datetime

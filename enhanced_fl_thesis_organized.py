@@ -375,38 +375,32 @@ class EnhancedFLSimulation:
     """Enhanced Federated Learning Simulation with Academic Research Focus"""
     
     def __init__(self, config: Dict):
-    self.config = config
-    
-    # FORCE GPU SETTINGS - ADD THIS BLOCK HERE
-    if config.get('force_gpu', True):
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda')
-            # ... rest of the GPU code
-    
-    # FORCE GPU SETTINGS - ADD THIS BLOCK HERE
-    if config.get('force_gpu', True):
-        if torch.cuda.is_available():
-            self.device = torch.device('cuda')
-            torch.cuda.set_device(0)  # Use first GPU
-            
-            # Apply GPU optimizations
-            if config.get('gpu_optimization', {}).get('torch_backends_cudnn_benchmark', True):
-                torch.backends.cudnn.benchmark = True
-            if config.get('gpu_optimization', {}).get('torch_backends_cudnn_deterministic', False):
-                torch.backends.cudnn.deterministic = False
-            
-            # Clear GPU cache
-            torch.cuda.empty_cache()
-            
-            logger.info(f"🎯 FORCE GPU MODE ENABLED")
-            logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
-            logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory/1e9:.1f} GB")
-            logger.info(f"CUDA Version: {torch.version.cuda}")
+        self.config = config
+        
+        # FORCE GPU SETTINGS - ADD THIS BLOCK HERE
+        if config.get('force_gpu', True):
+            if torch.cuda.is_available():
+                self.device = torch.device('cuda')
+                torch.cuda.set_device(0)  # Use first GPU
+                
+                # Apply GPU optimizations
+                if config.get('gpu_optimization', {}).get('torch_backends_cudnn_benchmark', True):
+                    torch.backends.cudnn.benchmark = True
+                if config.get('gpu_optimization', {}).get('torch_backends_cudnn_deterministic', False):
+                    torch.backends.cudnn.deterministic = False
+                
+                # Clear GPU cache
+                torch.cuda.empty_cache()
+                
+                logger.info(f"🎯 FORCE GPU MODE ENABLED")
+                logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
+                logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory/1e9:.1f} GB")
+                logger.info(f"CUDA Version: {torch.version.cuda}")
+            else:
+                logger.error("❌ GPU FORCED but CUDA not available!")
+                raise RuntimeError("GPU required but not available")
         else:
-            logger.error("❌ GPU FORCED but CUDA not available!")
-            raise RuntimeError("GPU required but not available")
-    else:
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+            self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
         # Initialize algorithm-specific variables for advanced algorithms
         self.scaffold_global_c = None
@@ -720,18 +714,16 @@ class EnhancedFLSimulation:
             torch.cuda.empty_cache()
             logger.info(f"✅ GPU memory test passed")
         else:
+            logger.warning(f"⚠️ Centralized model on CPU: {next(model.parameters()).device}")        # ADD THIS GPU CHECK BLOCK HERE
+        if self.device.type == 'cuda':
+            logger.info(f"✅ Centralized model moved to GPU: {next(model.parameters()).device}")
+            # Force GPU memory allocation test
+            test_tensor = torch.randn(100, 100).to(self.device)
+            del test_tensor
+            torch.cuda.empty_cache()
+            logger.info(f"✅ GPU memory test passed")
+        else:
             logger.warning(f"⚠️ Centralized model on CPU: {next(model.parameters()).device}")
-
-# ADD THIS GPU CHECK BLOCK HERE
-    if self.device.type == 'cuda':
-       logger.info(f"✅ Centralized model moved to GPU: {next(model.parameters()).device}")
-       # Force GPU memory allocation test
-       test_tensor = torch.randn(100, 100).to(self.device)
-       del test_tensor
-       torch.cuda.empty_cache()
-       logger.info(f"✅ GPU memory test passed")
-     else:
-      logger.warning(f"⚠️ Centralized model on CPU: {next(model.parameters()).device}")                 
         
         # Log model information
         model_info = model.get_model_info()

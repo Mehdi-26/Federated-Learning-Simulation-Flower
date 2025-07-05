@@ -2667,7 +2667,7 @@ if __name__ == "__main__":
         results_dirs = sorted(list(Path("results").glob("enhanced_thesis_*")), reverse=True)
         if not results_dirs:
             print("❌ No results directories found!")
-            return
+            sys.exit(1)
         
         latest_dir = results_dirs[0]
         print(f"📁 Using results from: {latest_dir}")

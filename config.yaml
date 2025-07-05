@@ -1,12 +1,20 @@
 # Optimized Literature-Standard Federated Learning Configuration
 # Based on: FL-bench, LEAF, FedProx paper, and performance evaluation
 
-# System Configuration (GPU Optimized)
+# GPU-Optimized Federated Learning Configuration
 device: "cuda"
-batch_size: 128          # Changed from 64 to 128 for GPU efficiency
+batch_size: 128
 random_seed: 42
-num_workers: 4           # Added for GPU optimization
-pin_memory: true         # Added for GPU optimization
+num_workers: 4
+pin_memory: true
+
+# FORCE GPU SETTINGS - ADD THIS SECTION
+force_gpu: true
+gpu_optimization:
+  torch_backends_cudnn_benchmark: true
+  torch_backends_cudnn_deterministic: false
+  empty_cache_frequency: 5
+  mixed_precision: true
 
 experiment_name: "optimized_literature_fl_analysis"
 description: "Literature-standard FL analysis optimized for efficient execution"

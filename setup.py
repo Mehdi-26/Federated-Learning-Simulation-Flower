@@ -176,7 +176,12 @@ experiments/large_experiments/
     print("🚫 .gitignore file created!")
 
 def create_readme():
-    """Create a comprehensive README file"""
+    """Create a comprehensive README file (only if it doesn't exist)"""
+    
+    # Check if README already exists
+    if Path("README.md").exists():
+        print("📖 README.md already exists - skipping creation")
+        return
     
     readme_content = """# 🎓 Federated Learning Thesis - Comprehensive Analysis
 
@@ -383,15 +388,36 @@ def create_sample_experiment():
 experiment_name: "quick_test_experiment"
 description: "Quick test of FL framework"
 author: "Mehdi MOUALIM"
+thesis_title: "Comparative Analysis of Federated Learning Algorithms"
+
+# System Configuration
+random_seed: 42
+device: "cpu"                   # Change to "cuda" if you have GPU
+num_workers: 4
+pin_memory: false
 
 # Minimal algorithm set for quick testing
 algorithms:
   - "FedAvg"
   - "FedProx"
 
+# Algorithm parameters
+algorithm_params:
+  fedavg: {}
+  fedprox:
+    mu: 0.01
+
 # Single dataset for quick testing  
 datasets:
   - "mnist"
+
+# Model architectures
+model_architectures:
+  mnist:
+    - model_type: "cnn"
+
+# Data heterogeneity (quick test)
+beta_values: [0.1, 1.0]  # Test extreme and balanced distributions
 
 # Basic federation settings
 num_clients: 5
@@ -399,33 +425,27 @@ clients_per_round: 3
 num_rounds: 10
 local_epochs: 2
 
-# Quick heterogeneity test
-data_distributions:
-  - "iid"
-  - "non_iid"
-beta_values: [0.5, 1.0]
-
-# Basic training settings
+# Training settings
 learning_rate: 0.01
 batch_size: 32
+weight_decay: 1e-4
 
-# Enable academic analysis
+# Academic analysis
+academic_analysis:
+  statistical_testing: true
+  confidence_level: 0.95
+
+# Research questions
 research_questions:
   fl_vs_centralized: true
   non_iid_impact: true
   device_reliability: true
+  communication_efficiency: true
+  privacy_vs_accuracy: true
+  scalability_analysis: true
 
-# Output settings
-save_results: true
-generate_dashboard: true
-academic_outputs:
-  generate_statistical_reports: true
-  generate_interactive_dashboards: true
-
-# System settings
-random_seed: 42
-device: "auto"
-thesis_mode: true
+# Privacy settings (disabled for quick test)
+differential_privacy: false
 """
 
     with open("experiments/sample_quick_test.yaml", "w") as f:
@@ -460,8 +480,9 @@ def main():
     print("🎉 Setup Complete!")
     print("\nNext steps:")
     print("1. Review and customize config.yaml")
-    print("2. Run: python enhanced_fl_thesis.py")
+    print("2. Run: python enhanced_fl_thesis_organized.py")
     print("3. Check results in results/ directory")
+    print("4. Generate plots: python generate_thesis_plots.py")
     
     if not install_success:
         print("\n⚠️  Note: Manual dependency installation may be required")

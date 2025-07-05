@@ -1,10 +1,10 @@
 # Optimized Literature-Standard Federated Learning Configuration
 # Based on: FL-bench, LEAF, FedProx paper, and performance evaluatio# System Configuration (CPU Optimized for AMD Ryzen)
 random_seed: 42
- device = "cuda"
- batch_size = 64          # Larger batches for GPU
-num_workers = 2          # Parallel data loading
-pin_memory = True        # Faster GPU transfer
+device : "cuda"
+batch_size : 64          # Larger batches for GPU
+num_workers : 2          # Parallel data loading
+pin_memory : true        # Faster GPU transfer
 # Optimized for GPU execution while maintaining literature standards
 
 experiment_name: "optimized_literature_fl_analysis"
@@ -138,11 +138,7 @@ num_runs: 1                     # Minimum for statistical validity
 confidence_interval: 0.95
 statistical_tests: true
 
-# System Configuration (GPU Optimized)
-#random_seed: 42
-#device: "cuda"                  # Force GPU usage
-#num_workers: 8                  # Balanced for GPU
-#pin_memory: true
+
 
 # Advanced Features
 thesis_mode: true

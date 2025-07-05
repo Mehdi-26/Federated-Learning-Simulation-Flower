@@ -41,7 +41,7 @@ datasets:
  # - "mnist"         # Fast training, good for initial testing
   - "cifar10"        # Fast convergence, good for comparison
  # - "shakespeare"    # Text dataset for language modeling
-  - "femnist" 
+  #- "femnist" 
 # Model Architectures (Research Paper Standard)
 model_architectures:
  # mnist:
@@ -52,8 +52,8 @@ model_architectures:
     - model_type: "resnet18"     # ~11.7M parameters
     - model_type: "resnet34"     # ~21.8M parameters
   
-  femnist:
-    - model_type: "cnn"          # ~134K parameters (same as MNIST)
+  #femnist:
+   # - model_type: "cnn"          # ~134K parameters (same as MNIST)
   
  # shakespeare:
   #  - model_type: "lstm2"        # ~134K parameters

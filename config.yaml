@@ -1,5 +1,10 @@
 # Optimized Literature-Standard Federated Learning Configuration
-# Based on: FL-bench, LEAF, FedProx paper, and performance evaluation studies
+# Based on: FL-bench, LEAF, FedProx paper, and performance evaluatio# System Configuration (CPU Optimized for AMD Ryzen)
+random_seed: 42
+ device = "cuda"
+ batch_size = 64          # Larger batches for GPU
+num_workers = 2          # Parallel data loading
+pin_memory = True        # Faster GPU transfer
 # Optimized for GPU execution while maintaining literature standards
 
 experiment_name: "optimized_literature_fl_analysis"
@@ -19,7 +24,7 @@ algorithms:
 algorithm_params:
   fedavg: {}
   fedprox:
-    mu: 0.01                    # Standard value from literature  [0.001, 0.01, 0.1, 1.0]
+    mu: [0.01, 0.1]                    # Standard value from literature  [0.001, 0.01, 0.1, 1.0]
   fedadam:
     beta1: 0.9
     beta2: 0.999
@@ -33,24 +38,44 @@ algorithm_params:
 
 # Dataset Configuration (Standard FL Benchmarks)
 datasets:
-  - "mnist"        # Fast convergence, good for comparison
-       # More complex, standard benchmark
+ # - "mnist"         # Fast training, good for initial testing
+  - "cifar10"        # Fast convergence, good for comparison
+ # - "shakespeare"    # Text dataset for language modeling
+  - "femnist" 
+# Model Architectures (Research Paper Standard)
+model_architectures:
+ # mnist:
+ #   - model_type: "cnn"          # ~134K parameters
+  
+  cifar10:
+    - model_type: "cnn"          # ~798K parameters - lightweight baseline
+    - model_type: "resnet18"     # ~11.7M parameters
+    - model_type: "resnet34"     # ~21.8M parameters
+  
+  femnist:
+    - model_type: "cnn"          # ~134K parameters (same as MNIST)
+  
+ # shakespeare:
+  #  - model_type: "lstm2"        # ~134K parameters
+    #- model_type: "lstm10"       # ~780K parameters  
+    #- model_type: "lstm20"       # ~1.59M parameters
 
 # Data Heterogeneity (Dirichlet Distribution - Literature Standard)
 # Key literature values: extreme non-IID to near-IID
-beta_values: [0.1, 100.0]  # 5 key values covering full spectrum [0.1, 0.5, 1.0, 5.0, 100.0]
-# 0.1 = extreme non-IID, 100.0 = essentially IID
+beta_values: [0.1, 0.3, ,0.5, 1.0, 100]  # Start with just extreme non-IID for testing
+# 0.1 = extreme non-IID, 0.5 = moderate, 1.0 = near-IID
 
 # Federated Learning Setup (Literature Standards)
-num_clients: 3               # Reduced from 100 but still realistic 50
-clients_per_round: 2         # 20% participation (reasonable)
-num_rounds: 2               # Reduced from 200 but sufficient for convergence to 100
-local_epochs: 2                # Standard value 5
+num_clients: 20              # Increased for more realistic federated setting
+clients_per_round: 12         # 60% participation (realistic)
+num_rounds: 20               # Increased for more realistic convergence
+local_epochs: 3              # Increased for better local training
 
-# Training Hyperparameters (Literature Standards)
+# Training Hyperparameters (GPU Optimized)
 learning_rate: 0.01
-batch_size: 32
+batch_size: 128                 # Larger batch for GPU efficiency
 weight_decay: 1e-4
+
 
 # Academic Analysis Configuration
 academic_analysis:
@@ -68,32 +93,33 @@ research_questions:
   privacy_vs_accuracy: true
   scalability_analysis: true
 
-# Privacy Settings (Disabled for baseline)
-differential_privacy: false
-dp_epsilon: 1.0
-dp_delta: 1e-5
-dp_noise_multiplier: 1.0
-dp_max_grad_norm: 1.0
+# Privacy Settings (Disabled for faster execution)
+differential_privacy: true     # Disable DP for faster training
+dp_epsilon: 1.0                 # Privacy budget (lower = more private)
+dp_delta: 1e-5                  # Probability of privacy breach
+dp_noise_multiplier: 1.1        # Noise scale for DP-SGD
+dp_max_grad_norm: 1.0           # Gradient clipping for DP
 
 # Communication Optimization (Baseline - no compression)
 compression: false
 quantization: false
 sparsification: false
 
-# Robustness Testing (Key dropout rates)
+# Robustness Testing (Simplified for faster execution)
 robustness_testing:
-  dropout_simulation: true
-  dropout_rates: [0.0, 0.2, 0.4]  # 3 key values: none, moderate, high
-  irregular_participation: true
+  enabled: true               # Disable for faster execution
+  dropout_simulation: false
+  dropout_rates: [0.0. 0.1, 0,2]        # Just baseline
+  irregular_participation: false
 
 # Stopping Criteria (Optimized)
-target_accuracy: 0.90           # Realistic target
+target_accuracy: 0.99           # Realistic target
 early_stopping: true
 early_stopping_patience: 20    # Reasonable patience
 
 # Output Configuration
 save_results: true
-save_models: false              # Save space - models not needed for analysis
+save_models: true              # Save space - models not needed for analysis
 output_dir: "results"
 generate_plots: true
 generate_dashboard: true
@@ -108,15 +134,15 @@ academic_outputs:
   save_raw_data_csv: true
 
 # Statistical Configuration (Literature Standard)
-num_runs: 5                     # Minimum for statistical validity
+num_runs: 1                     # Minimum for statistical validity
 confidence_interval: 0.95
 statistical_tests: true
 
 # System Configuration (GPU Optimized)
-random_seed: 42
-device: "cuda"                  # Force GPU usage
-num_workers: 4                  # Balanced for GPU
-pin_memory: true
+#random_seed: 42
+#device: "cuda"                  # Force GPU usage
+#num_workers: 8                  # Balanced for GPU
+#pin_memory: true
 
 # Advanced Features
 thesis_mode: true
@@ -127,8 +153,8 @@ verbose_output: true
 auto_download_on_completion: true
 results_compression: "zip"
 
-# Performance Optimizations
-mixed_precision: true           # Faster GPU training
+# Performance Optimizations (CPU Optimized)
+mixed_precision: false          # Not supported on CPU
 gradient_clipping: true         # Stability for SCAFFOLD/FedDyn
 max_grad_norm: 1.0
 

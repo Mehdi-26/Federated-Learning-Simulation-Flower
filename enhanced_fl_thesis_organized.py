@@ -375,9 +375,32 @@ class EnhancedFLSimulation:
     """Enhanced Federated Learning Simulation with Academic Research Focus"""
     
     def __init__(self, config: Dict):
-        self.config = config
+    self.config = config
+    
+    # FORCE GPU SETTINGS - ADD THIS BLOCK HERE
+    if config.get('force_gpu', True):
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda')
+            torch.cuda.set_device(0)  # Use first GPU
+            
+            # Apply GPU optimizations
+            if config.get('gpu_optimization', {}).get('torch_backends_cudnn_benchmark', True):
+                torch.backends.cudnn.benchmark = True
+            if config.get('gpu_optimization', {}).get('torch_backends_cudnn_deterministic', False):
+                torch.backends.cudnn.deterministic = False
+            
+            # Clear GPU cache
+            torch.cuda.empty_cache()
+            
+            logger.info(f"🎯 FORCE GPU MODE ENABLED")
+            logger.info(f"GPU: {torch.cuda.get_device_name(0)}")
+            logger.info(f"GPU Memory: {torch.cuda.get_device_properties(0).total_memory/1e9:.1f} GB")
+            logger.info(f"CUDA Version: {torch.version.cuda}")
+        else:
+            logger.error("❌ GPU FORCED but CUDA not available!")
+            raise RuntimeError("GPU required but not available")
+    else:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.results = {}
         
         # Initialize algorithm-specific variables for advanced algorithms
         self.scaffold_global_c = None
@@ -577,6 +600,23 @@ class EnhancedFLSimulation:
         
         return client_data
 
+    def check_gpu_usage(self):
+        """Check and log GPU usage"""
+        if torch.cuda.is_available() and self.device.type == 'cuda':
+            allocated = torch.cuda.memory_allocated(0) / 1e9
+            cached = torch.cuda.memory_reserved(0) / 1e9
+            total = torch.cuda.get_device_properties(0).total_memory / 1e9
+            
+            logger.info(f"GPU Memory: {allocated:.2f}GB allocated, {cached:.2f}GB cached, {total:.2f}GB total")
+            
+            if allocated < 0.1:
+                logger.warning("⚠️ Very low GPU memory usage - check if models/data are on GPU!")
+            
+            return allocated, cached, total
+        else:
+            logger.warning("❌ GPU not available for monitoring")
+            return 0, 0, 0
+
     def calculate_data_heterogeneity_metrics(self, client_data):
         """Calculate comprehensive data heterogeneity metrics"""
         if not client_data:
@@ -664,6 +704,28 @@ class EnhancedFLSimulation:
             model_type=model_config['model_type'],
             vocab_size=vocab_size
         ).to(self.device)
+
+        # ADD THIS GPU CHECK BLOCK HERE
+        if self.device.type == 'cuda':
+            logger.info(f"✅ Centralized model moved to GPU: {next(model.parameters()).device}")
+            # Force GPU memory allocation test
+            test_tensor = torch.randn(100, 100).to(self.device)
+            del test_tensor
+            torch.cuda.empty_cache()
+            logger.info(f"✅ GPU memory test passed")
+        else:
+            logger.warning(f"⚠️ Centralized model on CPU: {next(model.parameters()).device}")
+
+# ADD THIS GPU CHECK BLOCK HERE
+    if self.device.type == 'cuda':
+       logger.info(f"✅ Centralized model moved to GPU: {next(model.parameters()).device}")
+       # Force GPU memory allocation test
+       test_tensor = torch.randn(100, 100).to(self.device)
+       del test_tensor
+       torch.cuda.empty_cache()
+       logger.info(f"✅ GPU memory test passed")
+     else:
+      logger.warning(f"⚠️ Centralized model on CPU: {next(model.parameters()).device}")                 
         
         # Log model information
         model_info = model.get_model_info()
@@ -691,7 +753,13 @@ class EnhancedFLSimulation:
             epoch_loss = 0.0
             
             for data, target in train_loader:
-                data, target = data.to(self.device), target.to(self.device)
+                # FORCE DATA TO GPU WITH VERIFICATION
+                data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
+                
+                # ADD GPU VERIFICATION
+                if self.device.type == 'cuda' and data.device.type != 'cuda':
+                    logger.error(f"❌ Centralized data not moved to GPU! Data device: {data.device}")
+                
                 optimizer.zero_grad()
                 output = model(data)
                 loss = criterion(output, target)
@@ -731,7 +799,13 @@ class EnhancedFLSimulation:
         
         with torch.no_grad():
             for data, target in test_loader:
-                data, target = data.to(self.device), target.to(self.device)
+                # FORCE EVALUATION DATA TO GPU
+                data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
+                
+                # ADD GPU VERIFICATION FOR EVALUATION
+                if self.device.type == 'cuda' and data.device.type != 'cuda':
+                    logger.error(f"❌ Evaluation data not moved to GPU! Data device: {data.device}")
+                
                 output = model(data)
                 total_loss += criterion(output, target).item()
                 pred = output.argmax(dim=1, keepdim=True)
@@ -777,6 +851,17 @@ class EnhancedFLSimulation:
             model_type=model_config['model_type'],
             vocab_size=vocab_size
         ).to(self.device)
+
+        # ADD THIS GPU CHECK BLOCK HERE
+        if self.device.type == 'cuda':
+            logger.info(f"✅ FL global model moved to GPU: {next(global_model.parameters()).device}")
+            # Force GPU memory allocation test
+            test_tensor = torch.randn(100, 100).to(self.device)
+            del test_tensor
+            torch.cuda.empty_cache()
+            logger.info(f"✅ GPU memory test passed")
+        else:
+            logger.warning(f"⚠️ FL global model on CPU: {next(global_model.parameters()).device}")
         
         # Log model information
         model_info = global_model.get_model_info()
@@ -825,6 +910,10 @@ class EnhancedFLSimulation:
         
         for round_num in range(self.config['num_rounds']):
             round_start = time.time()
+            
+            # ADD THIS GPU MONITORING
+            if round_num % 2 == 0:  # Check every 2 rounds
+                self.check_gpu_usage()
             
             # Simulate realistic client participation patterns
             available_clients = len(client_loaders)
@@ -894,6 +983,14 @@ class EnhancedFLSimulation:
                 if round_num > 0:
                     # Create local model and perform local training
                     local_model = copy.deepcopy(global_model)
+
+                    # ADD THIS GPU CHECK FOR LOCAL MODEL
+                    if self.device.type == 'cuda':
+                        local_model = local_model.to(self.device)
+                        # Verify it's on GPU
+                        if next(local_model.parameters()).device.type != 'cuda':
+                            logger.error(f"❌ Local model not on GPU! Device: {next(local_model.parameters()).device}")
+
                     local_optimizer = optim.SGD(local_model.parameters(), lr=self.config['learning_rate'])
                     criterion = nn.NLLLoss()
                     
@@ -910,7 +1007,13 @@ class EnhancedFLSimulation:
                     
                     for epoch in range(self.config['local_epochs']):
                         for batch_idx, (data, target) in enumerate(client_loader):
-                            data, target = data.to(self.device), target.to(self.device)
+                            # CRITICAL: FORCE DATA TO GPU WITH VERIFICATION
+                            data, target = data.to(self.device, non_blocking=True), target.to(self.device, non_blocking=True)
+                            
+                            # ADD GPU VERIFICATION
+                            if self.device.type == 'cuda' and data.device.type != 'cuda':
+                                logger.error(f"❌ Client data not moved to GPU! Data device: {data.device}")
+                            
                             local_optimizer.zero_grad()
                             output = local_model(data)
                             loss = criterion(output, target)
